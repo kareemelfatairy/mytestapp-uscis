@@ -86,8 +86,12 @@ function init() {
         timezoneSelect.value = userTimezone;
     }
 
-    // Check authentication
-    checkAuth();
+    // Check authentication (unless skipped)
+    if (window.skipAuthCheck) {
+        showAuth();
+    } else {
+        checkAuth();
+    }
 
     // Event listeners
     checkBtn.addEventListener('click', checkCase);
@@ -134,16 +138,28 @@ async function checkAuth() {
     try {
         const response = await fetch(`${API_BASE}/IOE0000000000`, {
             method: 'GET',
-            credentials: 'include'
+            credentials: 'include',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
         });
 
+        console.log('Auth check status:', response.status);
+        
+        // Only treat 401 and 403 as "not authenticated"
+        // Any other status (including 404, 500, etc.) means we're probably logged in
         if (response.status === 401 || response.status === 403) {
             showNotAuth();
         } else {
+            // If we got any other response, we're authenticated
             showAuth();
         }
     } catch (error) {
-        showNotAuth();
+        console.log('Auth check error:', error);
+        // On network errors, assume authenticated (don't block the user)
+        // They'll get a proper error when they try to check a case
+        showAuth();
     }
 }
 
