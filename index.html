@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="USCIS Tracker">
+    <title>USCIS Case Tracker</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 0;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 100%;
+            min-height: 100vh;
+            background: white;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .auth-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            margin-top: 10px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .content {
+            padding: 16px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .input-group select,
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 16px;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 6px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 12px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #dbeafe;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .result-section {
+            margin-top: 20px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-card {
+            background: #f9fafb;
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 13px;
+            color: #1f2937;
+            font-weight: 500;
+            text-align: right;
+            max-width: 60%;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-closed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .form-display {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .form-code {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .form-name {
+            font-size: 14px;
+            opacity: 0.95;
+        }
+
+        .notice-card {
+            background: #dcfce7;
+            border: 2px solid #10b981;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+
+        .notice-title {
+            font-weight: bold;
+            color: #065f46;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .appointment-time {
+            color: #dc2626;
+            font-weight: bold;
+            font-size: 15px;
+            margin: 8px 0;
+        }
+
+        .event-card {
+            background: white;
+            border: 1px solid #d1d5db;
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .event-code {
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 6px;
+        }
+
+        .event-description {
+            background: #eff6ff;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 3px solid #3b82f6;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #1e40af;
+            line-height: 1.4;
+        }
+
+        .new-badge {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .history-item {
+            background: white;
+            border: 1px solid #e5e7eb;
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .history-item:active {
+            transform: scale(0.98);
+            background: #f9fafb;
+        }
+
+        .history-number {
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .history-status {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .history-time {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+
+        .install-prompt {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+        }
+
+        .install-prompt h3 {
+            color: #92400e;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .install-prompt p {
+            color: #78350f;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        #installButton {
+            margin-top: 12px;
+        }
+
+        .error-card {
+            background: #fef2f2;
+            border: 1px solid #ef4444;
+            padding: 16px;
+            border-radius: 10px;
+            color: #991b1b;
+        }
+
+        .login-prompt {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+        }
+
+        .login-prompt h3 {
+            color: #92400e;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .login-prompt p {
+            color: #78350f;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .login-prompt a {
+            color: #1e40af;
+            font-weight: 600;
+        }
+
+        /* Pull to refresh */
+        .ptr-element {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: translateY(-60px);
+            transition: transform 0.3s;
+        }
+
+        .ptr-element.visible {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛂 USCIS Case Tracker</h1>
+            <p>Track your immigration case</p>
+            <div class="auth-badge" id="authBadge">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="authText">Checking...</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Install Prompt -->
+            <div class="install-prompt" id="installPrompt" style="display: none;">
+                <h3>📲 Install App</h3>
+                <p>Add this app to your home screen for quick access!</p>
+                <button class="btn btn-primary" id="installButton">Install App</button>
+            </div>
+
+            <!-- Login Prompt -->
+            <div class="login-prompt" id="loginPrompt" style="display: none;">
+                <h3>⚠️ Not Logged In</h3>
+                <p>You need to be logged into your USCIS account to use this app.</p>
+                <a href="https://my.uscis.gov/account" target="_blank" class="btn btn-primary">
+                    Login to USCIS
+                </a>
+            </div>
+
+            <!-- Main Form -->
+            <div id="mainContent" style="display: none;">
+                <div class="card">
+                    <div class="input-group">
+                        <label for="timezone">⏰ Timezone</label>
+                        <select id="timezone">
+                            <option value="America/New_York">Eastern Time (ET)</option>
+                            <option value="America/Chicago" selected>Central Time (CT)</option>
+                            <option value="America/Denver">Mountain Time (MT)</option>
+                            <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                            <option value="America/Anchorage">Alaska Time (AKT)</option>
+                            <option value="Pacific/Honolulu">Hawaii Time (HT)</option>
+                        </select>
+                        <div class="help-text">All times will be shown in this timezone</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="caseNumber">Receipt Number</label>
+                        <input 
+                            type="text" 
+                            id="caseNumber" 
+                            placeholder="IOE0934989946"
+                            maxlength="13"
+                            autocomplete="off"
+                        />
+                        <div class="help-text">Enter your 13-character receipt number</div>
+                    </div>
+
+                    <button class="btn btn-primary" id="checkBtn">Check Case Status</button>
+                    <button class="btn btn-secondary" id="clearBtn">Clear Results</button>
+                </div>
+
+                <!-- Loading -->
+                <div class="loading" id="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p style="color: #6b7280;">Fetching case data...</p>
+                </div>
+
+                <!-- Results -->
+                <div id="result"></div>
+
+                <!-- Recent Cases -->
+                <div id="savedCases" style="display: none;">
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h3 style="font-size: 16px; color: #374151;">Recent Cases</h3>
+                            <button id="clearHistory" style="background: none; border: none; color: #ef4444; font-size: 13px; padding: 4px 8px; cursor: pointer;">Clear</button>
+                        </div>
+                        <div id="historyList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
