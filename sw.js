@@ -1,21 +1,26 @@
 // sw.js - Service Worker for offline functionality
 
-const CACHE_NAME = 'uscis-tracker-v1';
+const CACHE_NAME = 'uscis-tracker-v2';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/app.js',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+  './',
+  './index.html',
+  './app.js',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 // Install
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
+      .then(cache => {
+        console.log('Opened cache');
+        return cache.addAll(urlsToCache);
+      })
   );
+  // Force the waiting service worker to become the active service worker
+  self.skipWaiting();
 });
 
 // Fetch
@@ -36,10 +41,13 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheName !== CACHE_NAME) {
+            console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     })
   );
+  // Claim clients immediately
+  return self.clients.claim();
 });
