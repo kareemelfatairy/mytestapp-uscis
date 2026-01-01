@@ -146,7 +146,7 @@ async function checkAuth() {
         });
 
         console.log('Auth check status:', response.status);
-        
+
         // Only treat 401 and 403 as "not authenticated"
         // Any other status (including 404, 500, etc.) means we're probably logged in
         if (response.status === 401 || response.status === 403) {
@@ -157,9 +157,8 @@ async function checkAuth() {
         }
     } catch (error) {
         console.log('Auth check error:', error);
-        // On network errors, assume authenticated (don't block the user)
-        // They'll get a proper error when they try to check a case
-        showAuth();
+        // On CORS/network errors, show not authenticated with helpful message
+        showNotAuth();
     }
 }
 
@@ -207,7 +206,7 @@ async function checkCase() {
         });
 
         if (response.status === 401 || response.status === 403) {
-            showError('Not authenticated. Please log in to USCIS.');
+            showError('Not authenticated. Please log in to USCIS in this browser first, then try again.');
             showNotAuth();
             return;
         }
@@ -233,7 +232,7 @@ async function checkCase() {
         }
 
     } catch (error) {
-        showError(`Failed to fetch: ${error.message}`);
+        showError(`Failed to fetch: ${error.message}. Make sure you're logged into USCIS in this browser.`);
     } finally {
         loading.style.display = 'none';
         checkBtn.disabled = false;

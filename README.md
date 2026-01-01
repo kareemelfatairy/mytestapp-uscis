@@ -23,6 +23,8 @@ Since this needs to connect to USCIS (requires HTTPS), you need to host it on a 
 
 #### Option A: Use GitHub Pages (FREE!)
 
+**Note:** GitHub Pages only hosts static files. For mobile CORS support, use Vercel or Netlify instead (they include the proxy function).
+
 1. **Create a GitHub account** (if you don't have one)
 2. **Create a new repository** named `uscis-tracker`
 3. **Upload all files** from the `uscis-mobile` folder
@@ -33,19 +35,23 @@ Since this needs to connect to USCIS (requires HTTPS), you need to host it on a 
    - Click Save
 5. **Your app will be live at:** `https://yourusername.github.io/uscis-tracker/`
 
-#### Option B: Use Netlify (FREE!)
+**For mobile users on GitHub Pages:** The app uses a public CORS proxy which may have limitations. For best mobile experience, deploy to Vercel or Netlify.
+
+#### Option B: Use Netlify (FREE!) - Recommended for Mobile!
 
 1. Go to [netlify.com](https://netlify.com)
 2. Sign up for free
 3. Drag and drop the `uscis-mobile` folder
 4. Your app will be live instantly!
+5. **Mobile users:** The proxy function enables CORS-free access!
 
-#### Option C: Use Vercel (FREE!)
+#### Option C: Use Vercel (FREE!) - Recommended for Mobile!
 
 1. Go to [vercel.com](https://vercel.com)
 2. Sign up for free
 3. Import the project
 4. Deploy!
+5. **Mobile users:** The proxy function enables CORS-free access!
 
 ### Method 2: Local Server (For Testing)
 
@@ -85,22 +91,24 @@ npx http-server -p 8000
 
 ## 🔐 How to Use
 
-### Step 1: Login to USCIS
-1. Open Safari/Chrome on your phone
+### Step 1: Login to USCIS (Same Browser)
+1. Open your mobile browser (Chrome, Safari, etc.)
 2. Go to [https://my.uscis.gov/account](https://my.uscis.gov/account)
 3. **Log in** with your USCIS credentials
-4. **Keep this tab open** or make sure you stay logged in
+4. Keep this tab open or note that you're logged in
 
 ### Step 2: Open the App
-1. Tap the USCIS Tracker icon on your home screen
-2. If authenticated, you'll see a green ✅
-3. If not, you'll see a warning to log in
+1. In the **same browser**, open the app URL
+2. You should see a green ✅ "Authenticated" badge
+3. If you see "Not Logged In", tap "Refresh After Login"
 
 ### Step 3: Check Your Case
 1. Select your timezone (Central Time is default)
 2. Enter your receipt number (e.g., `IOE0934989946`)
 3. Tap **"Check Case Status"**
 4. View your case details!
+
+**Important:** The app must be used in the same browser where you logged into USCIS. The browser shares your login session with the app.
 
 ### Step 4: Check Again Later
 1. Open the app anytime

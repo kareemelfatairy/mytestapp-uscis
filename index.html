@@ -449,10 +449,25 @@
             <!-- Login Prompt -->
             <div class="login-prompt" id="loginPrompt" style="display: none;">
                 <h3>⚠️ Not Logged In</h3>
-                <p>You need to be logged into your USCIS account to use this app.</p>
+                <p>You need to be logged into your USCIS account <strong>in this browser</strong> to use this app.</p>
+
+                <div style="background: #eff6ff; padding: 12px; border-radius: 8px; margin: 12px 0; border-left: 3px solid #3b82f6;">
+                    <strong style="color: #1e40af; font-size: 13px;">How to use on mobile:</strong>
+                    <ol style="font-size: 12px; color: #1e40af; margin: 8px 0 0 16px; line-height: 1.8;">
+                        <li>Tap the button below to open USCIS login</li>
+                        <li>Log in to your USCIS account</li>
+                        <li>Come back to this page (use browser back or switch tabs)</li>
+                        <li>Refresh this page</li>
+                    </ol>
+                </div>
+
                 <a href="https://my.uscis.gov/account" target="_blank" class="btn btn-primary">
                     Login to USCIS
                 </a>
+
+                <button onclick="location.reload()" class="btn btn-secondary" style="margin-top: 8px;">
+                    Refresh After Login
+                </button>
             </div>
 
             <!-- Main Form -->

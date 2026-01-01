@@ -1,6 +1,6 @@
 // sw.js - Service Worker for offline functionality
 
-const CACHE_NAME = 'uscis-tracker-v2';
+const CACHE_NAME = 'uscis-tracker-v3';
 const urlsToCache = [
   './',
   './index.html',
@@ -25,6 +25,14 @@ self.addEventListener('install', event => {
 
 // Fetch
 self.addEventListener('fetch', event => {
+  // Skip caching for API/proxy requests
+  if (event.request.url.includes('/api/') ||
+      event.request.url.includes('/.netlify/functions/') ||
+      event.request.url.includes('my.uscis.gov')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then(response => {
